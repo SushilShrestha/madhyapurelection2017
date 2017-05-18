@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
+  <title>Adding a Custom Overlay</title>
+  <style>
+    /* Always set the map height explicitly to define the size of the div
+     * element that contains the map. */
+    #map {
+      height: 100%;
+    }
+    /* Optional: Makes the sample page fill the window. */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .castleInTheSky {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      border-radius: 8px;
+      background-color: black;
+      z-index: 999999999999999999;
+      opacity: 0.7;
+      color: white;
+      padding: 20px;
+      font-family: "Helvetica";
+    }
+    img {
+      width: 30px;
+      height: 30px;
+      border-radius: 3px;
+      vertical-align: middle;
+    }
+    .candidateInfo{
+      padding: 10px;
+    }
+  </style>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB1KhyStJaLIvMb45u7GaKtHGlYp0Bx8Dg"></script>
+  <script>
+    var candidateList = {"mayor":[{"CandidateID":16885,"Gender":"M","Age":46,"SymbolID":1,"PoliticalPartyName":"नेपाली काँग्रेस","CandidateName":"अष्‍ट कुमार कवे"},{"CandidateID":16863,"Gender":"M","Age":43,"SymbolID":2,"PoliticalPartyName":"नेपालकम्युनिष्टपार्टी (एकीकृत माक्र्सवादी लेलिनवादी)","CandidateName":"मदन सुन्दर (जगुलु) श्रेष्‍ठ"},{"CandidateID":16796,"Gender":"F","Age":39,"SymbolID":3,"PoliticalPartyName":"नेपाल कम्युनिष्ट पार्टी (माओवादी केन्द्र)","CandidateName":"प्रतिमा श्रेष्ठ"},{"CandidateID":16263,"Gender":"F","Age":50,"SymbolID":4,"PoliticalPartyName":"राष्ट्रिय प्रजातन्त्र पार्टी ","CandidateName":"राधा अधिकारी"},{"CandidateID":16198,"Gender":"M","Age":69,"SymbolID":9,"PoliticalPartyName":"नेपाल कम्युनिष्ट पार्टी (माक्र्सवादी–लेनिनवादी)","CandidateName":"बसन्त बहादुर खत्री"},{"CandidateID":16167,"Gender":"M","Age":70,"SymbolID":10,"PoliticalPartyName":"राष्ट्रिय जनमोर्चा ","CandidateName":"भिम प्रसाद श्रेष्‍ठ"},{"CandidateID":16578,"Gender":"M","Age":47,"SymbolID":5,"PoliticalPartyName":"नयाँ शक्ति पार्टी, नेपाल","CandidateName":"ज्ञान राम श्रेष्‍ठ"},{"CandidateID":16835,"Gender":"M","Age":34,"SymbolID":201,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"बावु कृष्‍ण श्रेष्‍ठ"},{"CandidateID":16821,"Gender":"M","Age":36,"SymbolID":202,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"रोमन बज्राचार्य"},{"CandidateID":16374,"Gender":"M","Age":49,"SymbolID":203,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"चन्द्र गोपाल श्रेष्ठ"},{"CandidateID":16679,"Gender":"M","Age":52,"SymbolID":204,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"बैकुण्ठ चित्रकार"},{"CandidateID":16245,"Gender":"M","Age":64,"SymbolID":205,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"महा प्रसाद पराजुली"},{"CandidateID":16702,"Gender":"F","Age":39,"SymbolID":207,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"सरीता दुवा"},{"CandidateID":16843,"Gender":"M","Age":53,"SymbolID":208,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"राम सुन्दर श्रेष्ठ"}],"deputy_mayor":[{"CandidateID":16814,"Gender":"F","Age":51,"SymbolID":1,"PoliticalPartyName":"नेपाली काँग्रेस","CandidateName":"अंजना देबी मधिकर्मी"},{"CandidateID":16484,"Gender":"F","Age":40,"SymbolID":3,"PoliticalPartyName":"नेपाल कम्युनिष्ट पार्टी (माओवादी केन्द्र)","CandidateName":"सुचित्रा श्रेष्ठ"},{"CandidateID":16425,"Gender":"M","Age":53,"SymbolID":4,"PoliticalPartyName":"राष्ट्रिय प्रजातन्त्र पार्टी ","CandidateName":"नर गोविन्द शंखदेव"},{"CandidateID":16460,"Gender":"F","Age":37,"SymbolID":5,"PoliticalPartyName":"संघीय समाजवादी फोरम, नेपाल ","CandidateName":"नानी छोरी वाडे"},{"CandidateID":16404,"Gender":"F","Age":36,"SymbolID":10,"PoliticalPartyName":"राष्ट्रिय जनमोर्चा ","CandidateName":"रुपा राना"},{"CandidateID":16632,"Gender":"M","Age":57,"SymbolID":13,"PoliticalPartyName":"नेपाल मजदुर किसान पार्टी ","CandidateName":"केदार खड्का"}],"ward":[[{"CandidateID":8955,"Gender":"M","Age":36,"SymbolID":1,"PoliticalPartyName":"नेपाली काँग्रेस","CandidateName":"सुरज खड्का"},{"CandidateID":8824,"Gender":"M","Age":47,"SymbolID":2,"PoliticalPartyName":"नेपालकम्युनिष्टपार्टी (एकीकृत माक्र्सवादी लेलिनवादी)","CandidateName":"अष्‍ट कुमार कवे"},{"CandidateID":8673,"Gender":"M","Age":50,"SymbolID":3,"PoliticalPartyName":"नेपाल कम्युनिष्ट पार्टी (माओवादी केन्द्र)","CandidateName":"श्याम कृष्‍ण डंगोल"},{"CandidateID":8572,"Gender":"M","Age":65,"SymbolID":4,"PoliticalPartyName":"राष्ट्रिय प्रजातन्त्र पार्टी ","CandidateName":"नारायण बहादुर बुढाथोकी"},{"CandidateID":8633,"Gender":"F","Age":47,"SymbolID":5,"PoliticalPartyName":"संघीय समाजवादी फोरम, नेपाल ","CandidateName":"देवी माया खाती"}],[{"CandidateID":16925,"Gender":"M","Age":36,"SymbolID":1,"PoliticalPartyName":"नेपाली काँग्रेस","CandidateName":"राम थापा मगर"},{"CandidateID":9036,"Gender":"M","Age":61,"SymbolID":2,"PoliticalPartyName":"नेपालकम्युनिष्टपार्टी (एकीकृत माक्र्सवादी लेलिनवादी)","CandidateName":"हेम राज गौतम"},{"CandidateID":9075,"Gender":"M","Age":36,"SymbolID":3,"PoliticalPartyName":"नेपाल कम्युनिष्ट पार्टी (माओवादी केन्द्र)","CandidateName":"राजन आलेमगर"},{"CandidateID":9007,"Gender":"M","Age":66,"SymbolID":4,"PoliticalPartyName":"राष्ट्रिय प्रजातन्त्र पार्टी ","CandidateName":"श्याम जङ्ग सिजापति"}],[{"CandidateID":16958,"Gender":"M","Age":39,"SymbolID":1,"PoliticalPartyName":"नेपाली काँग्रेस","CandidateName":"प्रेम बहादुर कुटु"},{"CandidateID":9387,"Gender":"M","Age":35,"SymbolID":3,"PoliticalPartyName":"नेपाल कम्युनिष्ट पार्टी (माओवादी केन्द्र)","CandidateName":"भुवन के. सी."},{"CandidateID":9256,"Gender":"M","Age":27,"SymbolID":4,"PoliticalPartyName":"राष्ट्रिय प्रजातन्त्र पार्टी ","CandidateName":"रविन थापा"},{"CandidateID":9224,"Gender":"M","Age":59,"SymbolID":10,"PoliticalPartyName":"राष्ट्रिय जनमोर्चा ","CandidateName":"खगेन्द्र अधिकारी"},{"CandidateID":9423,"Gender":"M","Age":50,"SymbolID":402,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"नारायण प्रसाद न्यौपाने"}],[{"CandidateID":16947,"Gender":"M","Age":56,"SymbolID":1,"PoliticalPartyName":"नेपाली काँग्रेस","CandidateName":"कुमार श्रेष्‍ठ"},{"CandidateID":16939,"Gender":"M","Age":50,"SymbolID":2,"PoliticalPartyName":"नेपालकम्युनिष्टपार्टी (एकीकृत माक्र्सवादी लेलिनवादी)","CandidateName":"बाल कृष्ण श्रेष्‍ठ"},{"CandidateID":9775,"Gender":"M","Age":63,"SymbolID":3,"PoliticalPartyName":"नेपाल कम्युनिष्ट पार्टी (माओवादी केन्द्र)","CandidateName":"कृष्‍ण लाल गोजा श्रेष्‍ठ"},{"CandidateID":9749,"Gender":"M","Age":61,"SymbolID":4,"PoliticalPartyName":"राष्ट्रिय प्रजातन्त्र पार्टी ","CandidateName":"लक्ष्मी भक्त लाखे श्रेष्‍ठ"},{"CandidateID":9829,"Gender":"F","Age":47,"SymbolID":5,"PoliticalPartyName":"संघीय समाजवादी फोरम, नेपाल ","CandidateName":"लक्ष्मी देवी श्रेष्‍ठ"},{"CandidateID":9644,"Gender":"M","Age":39,"SymbolID":401,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"चन्द्र कृष्ण श्रेष्‍ठ"}],[{"CandidateID":16969,"Gender":"M","Age":49,"SymbolID":1,"PoliticalPartyName":"नेपाली काँग्रेस","CandidateName":"दिल कृष्ण प्रजापती"},{"CandidateID":10054,"Gender":"M","Age":54,"SymbolID":2,"PoliticalPartyName":"नेपालकम्युनिष्टपार्टी (एकीकृत माक्र्सवादी लेलिनवादी)","CandidateName":"अमृत मान श्रेष्ठ"},{"CandidateID":10021,"Gender":"M","Age":45,"SymbolID":3,"PoliticalPartyName":"नेपाल कम्युनिष्ट पार्टी (माओवादी केन्द्र)","CandidateName":"जगत मान प्रजापति"},{"CandidateID":9873,"Gender":"M","Age":54,"SymbolID":4,"PoliticalPartyName":"राष्ट्रिय प्रजातन्त्र पार्टी ","CandidateName":"चन्द्र कृष्ण प्रजापती"},{"CandidateID":9971,"Gender":"M","Age":24,"SymbolID":5,"PoliticalPartyName":"संघीय समाजवादी फोरम, नेपाल ","CandidateName":"प्रताप श्रेष्ठ"},{"CandidateID":9903,"Gender":"M","Age":48,"SymbolID":406,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"आशा हरि प्रजापती"}],[{"CandidateID":17222,"Gender":"M","Age":52,"SymbolID":1,"PoliticalPartyName":"नेपाली काँग्रेस","CandidateName":"इन्द्र बहादुर प्रजापती"},{"CandidateID":17230,"Gender":"M","Age":39,"SymbolID":2,"PoliticalPartyName":"नेपालकम्युनिष्टपार्टी (एकीकृत माक्र्सवादी लेलिनवादी)","CandidateName":"दिल कृष्ण खाँस प्रजापति"},{"CandidateID":10120,"Gender":"M","Age":39,"SymbolID":3,"PoliticalPartyName":"नेपाल कम्युनिष्ट पार्टी (माओवादी केन्द्र)","CandidateName":"कृष्‍ण मान प्रजापती"},{"CandidateID":10248,"Gender":"M","Age":36,"SymbolID":4,"PoliticalPartyName":"राष्ट्रिय प्रजातन्त्र पार्टी ","CandidateName":"भुवन वाग श्रेष्ठ"},{"CandidateID":10300,"Gender":"M","Age":42,"SymbolID":5,"PoliticalPartyName":"संघीय समाजवादी फोरम, नेपाल ","CandidateName":"पुर्ण भक्त वाडे"},{"CandidateID":10191,"Gender":"M","Age":39,"SymbolID":9,"PoliticalPartyName":"नेपाल कम्युनिष्ट पार्टी (माक्र्सवादी–लेनिनवादी)","CandidateName":"राजु प्रसाद पराजुली"},{"CandidateID":10091,"Gender":"M","Age":39,"SymbolID":405,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"महेश कारंजित"}],[{"CandidateID":11328,"Gender":"M","Age":37,"SymbolID":1,"PoliticalPartyName":"नेपाली काँग्रेस","CandidateName":"दिनेश घजु"},{"CandidateID":10448,"Gender":"M","Age":42,"SymbolID":3,"PoliticalPartyName":"नेपाल कम्युनिष्ट पार्टी (माओवादी केन्द्र)","CandidateName":"पूर्ण काजी कवाडी"},{"CandidateID":10998,"Gender":"M","Age":45,"SymbolID":4,"PoliticalPartyName":"राष्ट्रिय प्रजातन्त्र पार्टी ","CandidateName":"राजेश बाडे"},{"CandidateID":11030,"Gender":"M","Age":35,"SymbolID":5,"PoliticalPartyName":"संघीय समाजवादी फोरम, नेपाल ","CandidateName":"सरोज घजु"},{"CandidateID":11051,"Gender":"M","Age":47,"SymbolID":13,"PoliticalPartyName":"नेपाल मजदुर किसान पार्टी ","CandidateName":"विकु बहादुर वैद्य"},{"CandidateID":10366,"Gender":"M","Age":27,"SymbolID":404,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"दिनेश बाडे"},{"CandidateID":11075,"Gender":"M","Age":46,"SymbolID":408,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"राम कृष्‍ण घजु"},{"CandidateID":29878,"Gender":"M","Age":51,"SymbolID":409,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"तेज कृष्ण खिचाजु"},{"CandidateID":10647,"Gender":"M","Age":53,"SymbolID":413,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"दिल कुमार बाडे"},{"CandidateID":10412,"Gender":"M","Age":63,"SymbolID":414,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"कृष्‍‍ण कुमार प्रजापति"}],[{"CandidateID":15903,"Gender":"M","Age":36,"SymbolID":1,"PoliticalPartyName":"नेपाली काँग्रेस","CandidateName":"दिल कृष्ण प्रजापती"},{"CandidateID":11426,"Gender":"M","Age":52,"SymbolID":3,"PoliticalPartyName":"नेपाल कम्युनिष्ट पार्टी (माओवादी केन्द्र)","CandidateName":"लक्ष्मी कृष्ण खपे श्रेष्ठ"},{"CandidateID":11355,"Gender":"M","Age":28,"SymbolID":4,"PoliticalPartyName":"राष्ट्रिय प्रजातन्त्र पार्टी ","CandidateName":"विक्रम वुढा"},{"CandidateID":11369,"Gender":"M","Age":51,"SymbolID":13,"PoliticalPartyName":"नेपाल मजदुर किसान पार्टी ","CandidateName":"देव कृष्ण मोय श्रेष्ठ"}],[{"CandidateID":15852,"Gender":"M","Age":51,"SymbolID":1,"PoliticalPartyName":"नेपाली काँग्रेस","CandidateName":"राम काजी चक्रधर"},{"CandidateID":11531,"Gender":"M","Age":54,"SymbolID":4,"PoliticalPartyName":"राष्ट्रिय प्रजातन्त्र पार्टी ","CandidateName":"श्याम कृष्ण राजवाहक"},{"CandidateID":11560,"Gender":"M","Age":28,"SymbolID":13,"PoliticalPartyName":"नेपाल मजदुर किसान पार्टी ","CandidateName":"राजु कैती"},{"CandidateID":11471,"Gender":"M","Age":41,"SymbolID":403,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"रघुनाथ खड्का क्षेत्री"},{"CandidateID":11482,"Gender":"M","Age":46,"SymbolID":407,"PoliticalPartyName":"स्वतन्त्र","CandidateName":"केशव कासुला"}]]}
+  </script>
+  <script>
+
+    var overlay;
+    USGSOverlay.prototype = new google.maps.OverlayView();
+
+    function initMap() {
+      var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 14,
+        center: {lat: 27.682048, lng: 85.381412},
+      });
+
+//      map.addListener('click', function(s) {
+//        alert(s.latLng.lat() + ', ' + s.latLng.lng())
+//      });
+
+      var bounds = new google.maps.LatLngBounds(
+        new google.maps.LatLng(27.667869846790886, 85.35158157348633),
+        new google.maps.LatLng(27.7031737150271, 85.40745735168457),
+        );
+
+      var srcImage = 'https://lh3.googleusercontent.com/iALnj3W_EKz8wg-MBOh0kJO8tCQG_42Q1TdjZN94IkkFoA1d5XSEVfKAQvLECB1hUnubPoa28pkWilLmX7_T01zhQkw=s960';
+
+      overlay = new USGSOverlay(bounds, srcImage, map);
+
+      var wardLocations = [
+        {position: {lat: 27.6775995007861, lng: 85.35810470581055}, title: 'Ward Number 1', map: map, icon: {path: google.maps.SymbolPath.CIRCLE, scale: 5}},
+        {position: {lat: 27.681095883537264, lng: 85.3692626953125}, title: 'Ward Number 2', map: map, icon: {path: google.maps.SymbolPath.CIRCLE, scale: 5}},
+        {position: {lat: 27.67364693334881, lng: 85.37818908691406}, title: 'Ward Number 3', map: map, icon: {path: google.maps.SymbolPath.CIRCLE, scale: 5}},
+        {position: {lat: 27.674407053577546, lng: 85.38848876953125}, title: 'Ward Number 4', map: map, icon: {path: google.maps.SymbolPath.CIRCLE, scale: 5 }},
+        {position: {lat: 27.67805555705713, lng: 85.39552688598633}, title: 'Ward Number 5', map: map, icon: {path: google.maps.SymbolPath.CIRCLE, scale: 5}},
+        {position: {lat: 27.682692021061115, lng: 85.39535522460938}, title: 'Ward Number 6', map: map, icon: {path: google.maps.SymbolPath.CIRCLE, scale: 5}},
+        {position: {lat: 27.68565621457348, lng: 85.38402557373047}, title: 'Ward Number 7', map: map, icon: {path: google.maps.SymbolPath.CIRCLE, scale: 5}},
+        {position: {lat: 27.694396316737205, lng: 85.39029121398926}, title: 'Ward Number 8', map: map, icon: {path: google.maps.SymbolPath.CIRCLE, scale: 5}},
+        {position: {lat: 27.68155192521006, lng: 85.40213584899902}, title: 'Ward Number 9', map: map, icon: {path: google.maps.SymbolPath.CIRCLE, scale: 5}},
+      ]
+
+      var wardData = [
+        {"madan": 1001, "kaway": 1606, ward: 1, voters: 2937},
+        {"madan": 812, "kaway": 734, ward: 2, voters: 1791},
+        {"madan": 1340, "kaway": 1471, ward: 3, voters: 3327},
+        {"madan": 1028, "kaway": 389, ward: 4, voters: 4775},
+        {"madan": 0, "kaway": 0, ward: 5, voters: 4811},
+        {"madan": 0, "kaway": 0, ward: 6, voters: 3149},
+        {"madan": 0, "kaway": 0, ward: 7, voters: 3519},
+        {"madan": 0, "kaway": 0, ward: 8, voters: 2891},
+        {"madan": 0, "kaway": 0, ward: 9, voters: 2338},
+      ]
+
+      var totalMadan = 0, totalKaway = 0
+      wardData.map(function (wardInfo){
+        totalMadan += wardInfo.madan
+        totalKaway += wardInfo.kaway
+      })
+
+      document.getElementById('madanVote').innerHTML = totalMadan
+      document.getElementById('kawayVote').innerHTML = totalKaway
+
+//      var infoWindows = wardData.map(function (wardInfo, index) {
+//        const content = "<div><div>Ward " + (wardInfo.ward) + "</div>" +
+//            "<div>Total Voters: " + wardInfo.voters + "</div>" +
+//            "<div class='candidateInfo'><img src='http://202.166.220.247:90/Symbols/icon2.png' /> Madan Sundar Shrestha: " + wardInfo.madan + "</div>" +
+//            "<div class='candidateInfo'><img src='http://202.166.220.247:90/Symbols/icon1.png' /> Asta Kumar Kaway: " + wardInfo.kaway + "</div>" +
+//          "</div>"
+//        return content
+//      })
+
+//      var markers = wardLocations.map(function(wardLocation, index) {
+//        const marker = new google.maps.Marker(wardLocation)
+//
+//        marker.addListener('click', function() {
+//          document.getElementById('castleInTheSky').innerHTML = infoWindows[index]
+//        });
+//
+//        return marker;
+//      })
+
+
+    }
+
+    /** @constructor */
+    function USGSOverlay(bounds, image, map) {
+
+      // Initialize all properties.
+      this.bounds_ = bounds;
+      this.image_ = image;
+      this.map_ = map;
+
+      // Define a property to hold the image's div. We'll
+      // actually create this div upon receipt of the onAdd()
+      // method so we'll leave it null for now.
+      this.div_ = null;
+
+      // Explicitly call setMap on this overlay.
+      this.setMap(map);
+    }
+
+    /**
+     * onAdd is called when the map's panes are ready and the overlay has been
+     * added to the map.
+     */
+    USGSOverlay.prototype.onAdd = function() {
+
+      var div = document.createElement('div');
+      div.style.borderStyle = 'none';
+      div.style.borderWidth = '0px';
+      div.style.position = 'absolute';
+
+      // Create the img element and attach it to the div.
+      var img = document.createElement('img');
+      img.src = this.image_;
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.position = 'absolute';
+      div.appendChild(img);
+
+      this.div_ = div;
+
+      // Add the element to the "overlayLayer" pane.
+      var panes = this.getPanes();
+      panes.overlayLayer.appendChild(div);
+    };
+
+    USGSOverlay.prototype.draw = function() {
+
+      // We use the south-west and north-east
+      // coordinates of the overlay to peg it to the correct position and size.
+      // To do this, we need to retrieve the projection from the overlay.
+      var overlayProjection = this.getProjection();
+
+      // Retrieve the south-west and north-east coordinates of this overlay
+      // in LatLngs and convert them to pixel coordinates.
+      // We'll use these coordinates to resize the div.
+      var sw = overlayProjection.fromLatLngToDivPixel(this.bounds_.getSouthWest());
+      var ne = overlayProjection.fromLatLngToDivPixel(this.bounds_.getNorthEast());
+
+      // Resize the image's div to fit the indicated dimensions.
+      var div = this.div_;
+      div.style.left = sw.x + 'px';
+      div.style.top = ne.y + 'px';
+      div.style.width = (ne.x - sw.x) + 'px';
+      div.style.height = (sw.y - ne.y) + 'px';
+      div.style.opacity = 0.4
+    };
+
+    // The onRemove() method will be called automatically from the API if
+    // we ever set the overlay's map property to 'null'.
+    USGSOverlay.prototype.onRemove = function() {
+      this.div_.parentNode.removeChild(this.div_);
+      this.div_ = null;
+    };
+
+    google.maps.event.addDomListener(window, 'load', initMap);
+  </script>
+</head>
+<body>
+<div id="map"></div>
+<div class="castleInTheSky" id="castleInTheSky">
+  <div>
+    <div>Mayor Candidates</div>
+    <div class='candidateInfo'><img src='http://202.166.220.247:90/Symbols/icon2.png' /> Madan Sundar Shrestha: <span id="madanVote"></span></div>
+    <div class='candidateInfo'><img src='http://202.166.220.247:90/Symbols/icon1.png' /> Asta Kumar Kaway: <span id="kawayVote"></span></div>
+    <div style="font-size: xx-small">Disclaimer : The data shown in this web page is obtained from various online source. </div>
+    <div style="font-size: xx-small">The data may not be accurate but is targeted to provide brief overview.  </div>
+  </div>
+</div>
+</body>
+</html>
